@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+{% block title %}Модерация платежей{% endblock %}
+
+{% block body %}
+<div class="container py-4" style="max-width: 1000px;">
+  <h2 class="mb-4">Модерация заявок</h2>
+
+  {% for label, messages in app.flashes %}
+    {% for msg in messages %}
+      <div class="alert alert-{{ label }} text-dark">{{ msg }}</div>
+    {% endfor %}
+  {% endfor %}
+
+  <table class="table table-dark table-hover table-bordered text-center align-middle">
+    <thead class="table-warning text-dark">
+      <tr>
+        <th>#</th>
+        <th>Пользователь</th>
+        <th>От кого</th>
+        <th>Запрос (₽)</th>
+        <th>Одобрено (₽)</th>
+        <th>Файл</th>
+        <th>Статус</th>
+        <th>Дата</th>
+        <th>Действие</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in payments %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td>{{ p.user.userIdentifier }}</td>
+          <td>{{ p.sender }}</td>
+          <td class="text-end">{{ p.requestedAmount }}</td>
+          <td class="text-end">
+            {% if p.approvedAmount is not null %}
+              {{ p.approvedAmount }}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td>
+            {% if p.receiptPath %}
+              <a href="{{ asset('uploads/receipts/' ~ p.receiptPath) }}"
+                 target="_blank" class="btn btn-outline-light btn-sm">📄</a>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge px-3 py-2
+              {% if p.status.code == 'approved' %}bg-success
+              {% elseif p.status.code == 'rejected' %}bg-danger
+              {% else %}bg-warning text-dark{% endif %}">
+              {{ p.status.label }}
+            </span>
+          </td>
+          <td>{{ p.createdAt|date('d.m.Y H:i') }}</td>
+          <td>
+            {% if p.status.code == 'pending' %}
+              <form method="post"
+                    action="{{ path('admin_payments_approve', {id: p.id}) }}"
+                    class="d-flex flex-column gap-2">
+                <input type="number" name="approved_amount" step="0.01" min="0"
+                       class="form-control form-control-sm bg-dark text-light border-warning"
+                       placeholder="₽" style="width: 80px;" required>
+                <div class="d-flex gap-1">
+                  <button type="submit" class="btn btn-sm btn-success w-100">Одобрить</button>
+                  <a href="{{ path('admin_payments_reject', {id: p.id}) }}"
+                     class="btn btn-sm btn-outline-danger w-100">Отклонить</a>
+                </div>
+              </form>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="9" class="text-muted py-3">Заявок нет</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+twig:
+  file_name_pattern: "*.twig"
+  globals:
+    depositPhoneNumber: "%deposit_phone_number%"
+    depositRecipientName: "%deposit_recipient_name%"
+
+when@test:
+  twig:
+    strict_variables: true

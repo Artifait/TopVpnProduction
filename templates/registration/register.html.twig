@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+{% block title %}Register{% endblock %}
+
+{% block body %}
+    <div class="mx-auto" style="max-width: 400px;">
+        <h1 class="mb-4">Register</h1>
+
+        {{ form_start(registrationForm) }}
+
+            <div class="mb-3">
+                {{ form_label(registrationForm.username) }}
+                {{ form_widget(registrationForm.username, { attr: { class: 'form-control' } }) }}
+                {{ form_errors(registrationForm.username) }}
+            </div>
+
+            <div class="mb-3">
+                {{ form_label(registrationForm.plainPassword) }}
+                <div class="input-group">
+                    {{ form_widget(registrationForm.plainPassword, { attr: { class: 'form-control' } }) }}
+                    <button type="button" class="btn btn-outline-secondary toggle-password" data-target="{{ registrationForm.plainPassword.vars.id }}">👁</button>
+                </div>
+                {{ form_errors(registrationForm.plainPassword) }}
+            </div>
+
+            <div class="mb-3 form-check">
+                {{ form_widget(registrationForm.agreeTerms, { attr: { class: 'form-check-input' } }) }}
+                {{ form_label(registrationForm.agreeTerms, null, { label_attr: { class: 'form-check-label' } }) }}
+                {{ form_errors(registrationForm.agreeTerms) }}
+            </div>
+
+            {# Явно вывести CSRF токен, если вдруг форма не выводит сама #}
+            {{ form_row(registrationForm._token) }}
+
+            <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+
+        {{ form_end(registrationForm) }}
+    </div>
+{% endblock %}

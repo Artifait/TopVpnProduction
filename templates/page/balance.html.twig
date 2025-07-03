@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+{% block title %}Баланс{% endblock %}
+
+{% block body %}
+  <div class="container mt-4" style="max-width: 1000px;">
+    <h2 class="mb-4">Пополнение баланса</h2>
+
+    {% for msg in app.flashes('warning') %}
+      <div class="alert alert-warning">{{ msg }}</div>
+    {% endfor %}
+
+    <div class="d-flex flex-wrap gap-3 justify-content-between align-items-start">
+      <!-- 📤 Форма -->
+      {% if form %}
+        <div class="card bg-dark text-light p-4 border-warning border-2 rounded-4 shadow flex-grow-1" style="min-width: 300px; max-width: 600px;">
+          {{ form_start(form) }}
+
+            <div class="mb-3">
+              {{ form_label(form.sender, null, { label_attr: { class: 'form-label text-warning' } }) }}
+              {{ form_widget(form.sender, { attr: { class: 'form-control bg-dark text-light border-warning' } }) }}
+              {{ form_errors(form.sender) }}
+            </div>
+
+            <div class="mb-3">
+              {{ form_label(form.requestedAmount, null, { label_attr: { class: 'form-label text-warning' } }) }}
+              {{ form_widget(form.requestedAmount, { attr: { class: 'form-control bg-dark text-light border-warning' } }) }}
+              {{ form_errors(form.requestedAmount) }}
+            </div>
+
+            <div class="mb-3">
+              {{ form_label(form.receiptPath, null, { label_attr: { class: 'form-label text-warning' } }) }}
+              {{ form_widget(form.receiptPath, { attr: { class: 'form-control bg-dark text-light border-warning' } }) }}
+              {{ form_errors(form.receiptPath) }}
+            </div>
+
+            <button class="btn btn-warning w-100 mt-2">Отправить заявку</button>
+          {{ form_end(form) }}
+        </div>
+      {% endif %}
+
+        <!-- 💳 Реквизиты -->
+        <div class="card bg-dark text-light border border-warning border-2 rounded-4 shadow p-3 position-relative" style="min-width: 260px;">
+        <h5 class="text-warning mb-2">Реквизиты для перевода</h5>
+        <p class="mb-1">
+            <strong>Номер телефона:</strong><br>
+            <span class="text-white">{{ depositPhoneNumber }}</span>
+        </p>
+        <p class="mb-0">
+            <strong>Получатель:</strong><br>
+            <span class="text-white">{{ depositRecipientName }}</span>
+        </p>
+        </div>
+
+    </div>
+
+    <h3 class="mt-5 mb-3">Мои заявки на пополнение</h3>
+
+    <table class="table table-bordered text-light align-middle shadow-sm">
+      <thead class="table-dark">
+        <tr class="text-center">
+          <th>#</th>
+          <th>Сумма (₽)</th>
+          <th>Статус</th>
+          <th>Квитанция</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pending %}
+          <tr>
+            <td class="text-center">{{ p.id }}</td>
+            <td class="text-end">
+              {% if p.status.code == 'pending' %}
+                {{ p.requestedAmount }}
+              {% elseif p.status.code == 'approved' %}
+                {{ p.approvedAmount }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td class="text-center">
+              <span class="badge px-3 py-2
+                {% if p.status.code == 'approved' %}bg-success
+                {% elseif p.status.code == 'rejected' %}bg-danger
+                {% else %}bg-warning text-dark{% endif %}">
+                {{ p.status.label }}
+              </span>
+            </td>
+            <td class="text-center">
+              {% if p.receiptPath %}
+                <a href="{{ asset('uploads/receipts/' ~ p.receiptPath) }}" target="_blank" class="btn btn-sm btn-outline-warning">📄</a>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="4" class="text-center text-muted py-4">
+              Заявок пока нет.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+{% endblock %}
